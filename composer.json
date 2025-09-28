@@ -1,0 +1,17 @@
+{
+  "name": "yngrk/media-library",
+  "description": "A global library for media files",
+  "version": "1.0.0",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Young Rok Kim",
+      "email": "yngrk.kim@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Yngrk\\MediaLibrary\\": "src/"
+    }
+  }
+}

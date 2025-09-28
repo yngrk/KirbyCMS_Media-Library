@@ -1,0 +1,13 @@
+{
+  "name": "yngrk-media-library",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "kirbyup src/panel/main.js --watch --out-dir dist",
+    "build": "kirbyup src/panel/main.js --out-dir dist"
+  },
+  "devDependencies": {
+    "kirbyup": "^3.4.1",
+    "gsap": "^3.13.0"
+  }
+}
