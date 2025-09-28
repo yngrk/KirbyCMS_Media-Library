@@ -1,9 +1,9 @@
 <script>
 export default {
   extends: 'k-files-field',
-  props: ['test'],
-  mounted() {
-    console.log(this.$props.test)
+  props: ['query', 'uploads', 'bucket', 'libUid'],
+  created() {
+    console.log(this.$props)
   },
 }
 </script>

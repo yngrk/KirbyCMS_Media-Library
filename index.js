@@ -9,9 +9,9 @@
   }
   const _sfc_main = {
     extends: "k-files-field",
-    props: ["test"],
-    mounted() {
-      console.log(this.$props.test);
+    props: ["query", "uploads", "bucket", "libUid"],
+    created() {
+      console.log(this.$props);
     }
   };
   var __component__ = /* @__PURE__ */ normalizeComponent(

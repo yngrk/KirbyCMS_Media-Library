@@ -8,6 +8,12 @@ load([
     'Yngrk\MediaLibrary\Models\MediaBucketPage' => 'src/php/models/MediaBucketPage.php'
 ], __DIR__);
 
+
+function sanitizeBucket($bucket) {
+    $allowed = option('yngrk.media-library.buckets', ['images','videos','documents']);
+    return in_array($bucket, $allowed, true) ? $bucket : 'images';
+}
+
 Kirby::plugin('yngrk/media-library', [
     'options' => [
         'uid' => 'media-library',
@@ -74,21 +80,23 @@ Kirby::plugin('yngrk/media-library', [
         'media-library' => [
             'extends' => 'files',
             'props' => [
-                'bucket' => function ($bucket = 'images') {
-                    return $bucket ?? 'images';
+                'bucket' => function () {
+                    return $this->bucket ?? 'images';
                 },
                 'libUid' => function () {
                     return option('yngrk.media-library.uid', 'media-library');
                 },
                 'query' => function () {
-                    return 'page("' . $this->libUid . '/' . $this->bucket . '").files';
+                    return 'page("' . $this->libUid . '/' . sanitizeBucket($this->bucket ?? 'images') . '").files';
                 },
                 'uploads' => function () {
                     return [
-                        'parent'   => $this->libUid . '/' . $this->bucket,
-                        'multiple' => true,
+                        'parent' => 'page("' . $this->libUid . '/'. sanitizeBucket($this->bucket ?? 'images') . '")',
                     ];
                 },
+                'label' => function ($label = null) {
+                    return ($label ?? 'Media Library') . ' (' . sanitizeBucket($this->bucket ?? 'images') . ')';
+                }
             ],
         ]
     ],
