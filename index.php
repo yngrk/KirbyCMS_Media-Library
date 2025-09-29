@@ -4,8 +4,8 @@ use Kirby\Cms\App as Kirby;
 use Kirby\Toolkit\Str;
 
 load([
-    'Yngrk\MediaLibrary\Models\MediaLibraryPage' => 'src/php/models/MediaLibraryPage.php',
-    'Yngrk\MediaLibrary\Models\MediaBucketPage' => 'src/php/models/MediaBucketPage.php'
+    'Yngrk\MediaLibrary\Models\MediaLibraryPage' => 'models/MediaLibraryPage.php',
+    'Yngrk\MediaLibrary\Models\MediaBucketPage' => 'models/MediaBucketPage.php'
 ], __DIR__);
 
 
@@ -92,6 +92,7 @@ Kirby::plugin('yngrk/media-library', [
                 'uploads' => function () {
                     return [
                         'parent' => 'page("' . $this->libUid . '/'. sanitizeBucket($this->bucket ?? 'images') . '")',
+                        'template' => 'media-library-image'
                     ];
                 },
                 'label' => function ($label = null) {
@@ -115,6 +116,67 @@ Kirby::plugin('yngrk/media-library', [
                     return ['categories' => []];
                 }
             ],
+            [
+                'pattern' => 'yngrk-media-library/files',
+                'method' => 'GET',
+                'auth' => false,
+                'action' => function () {
+                    $pageNum = max(1, (int) get('page', 1));
+                    $limit = (int) get('limit', 20);
+                    $q = trim((string) get('search', ''));
+                    $bucket = get('bucket');
+                    $cat = get('category');
+
+                    $libUid = option('yngrk.media-library.uid', 'media-library');
+                    $parent = page($libUid . '/' . ($bucket ?? 'images'));
+
+                    if (!$parent) {
+                        return [
+                            'data' => [],
+                            'pagination' => [
+                                'page' => 1,
+                                'pages' => 1,
+                                'offset' => 0,
+                                'limit' => $limit,
+                                'total' => 0,
+                            ]
+                        ];
+                    }
+
+                    $files = $parent->files();
+
+                    if ($cat) {
+                        $files = $files->filterBy('category', $cat);
+                    }
+
+                    if ($q !== '') {
+                        $files = $files->search($q);
+                    }
+
+                    $paginated = $files->paginate($limit, ['page' => $pageNum]);
+
+                    $data = $paginated->map(function ($file) {
+                        return [
+                            'id' => $file->id(),
+                            'text' =>  $file->filename(),
+                            'image' => $file->panel()->image()
+                        ];
+                    })->values();
+
+                    $p = $paginated->pagination();
+
+                    return [
+                        'data' => $data,
+                        'pagination' => [
+                            'page' => $p->page(),
+                            'pages' => $p->pages(),
+                            'offset' => $p->offset(),
+                            'limit' => $p->limit(),
+                            'total' => $p->total(),
+                        ]
+                    ];
+                }
+            ]
         ],
     ]
 ]);
