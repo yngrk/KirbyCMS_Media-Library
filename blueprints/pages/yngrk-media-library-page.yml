@@ -1,0 +1,9 @@
+title: Media Library
+
+tabs:
+  settings:
+    fields:
+      categories:
+        label: Categories
+        type: tags
+

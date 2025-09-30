@@ -9,6 +9,19 @@ export default {
       category: ''
     }
   },
+  computed: {
+    categoryOptions() {
+      return this.categories.map((c) => ({
+        value: c,
+        text: c,
+      }))
+    }
+  },
+  watch: {
+    async category() {
+      await this.fetch()
+    }
+  },
   methods: {
     async fetch() {
       const params = {
@@ -47,6 +60,13 @@ export default {
   >
     <slot name="header" />
 
+    <k-select-field
+        :options="categoryOptions"
+        v-model="category"
+        placeholder="Filter by category"
+        class="category-select"
+    ></k-select-field>
+
     <k-dialog-search v-if="hasSearch" :value="query" @search="query = $event" />
 
     <k-collection
@@ -79,3 +99,9 @@ export default {
     </k-collection>
   </k-dialog>
 </template>
+
+<style scoped>
+.category-select {
+  margin-bottom: 0.75rem;
+}
+</style>

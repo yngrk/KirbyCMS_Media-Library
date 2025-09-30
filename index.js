@@ -7,6 +7,9 @@
       options.staticRenderFns = staticRenderFns;
       options._compiled = true;
     }
+    if (scopeId) {
+      options._scopeId = "data-v-" + scopeId;
+    }
     return {
       exports: scriptExports,
       options
@@ -19,6 +22,19 @@
         categories: [],
         category: ""
       };
+    },
+    computed: {
+      categoryOptions() {
+        return this.categories.map((c) => ({
+          value: c,
+          text: c
+        }));
+      }
+    },
+    watch: {
+      async category() {
+        await this.fetch();
+      }
     },
     methods: {
       async fetch() {
@@ -49,7 +65,9 @@
     var _vm = this, _c = _vm._self._c;
     return _c("k-dialog", _vm._b({ staticClass: "k-models-dialog", on: { "cancel": function($event) {
       return _vm.$emit("cancel");
-    }, "submit": _vm.submit } }, "k-dialog", _vm.$props, false), [_vm._t("header"), _vm.hasSearch ? _c("k-dialog-search", { attrs: { "value": _vm.query }, on: { "search": function($event) {
+    }, "submit": _vm.submit } }, "k-dialog", _vm.$props, false), [_vm._t("header"), _c("k-select-field", { staticClass: "category-select", attrs: { "options": _vm.categoryOptions, "placeholder": "Filter by category" }, model: { value: _vm.category, callback: function($$v) {
+      _vm.category = $$v;
+    }, expression: "category" } }), _vm.hasSearch ? _c("k-dialog-search", { attrs: { "value": _vm.query }, on: { "search": function($event) {
       _vm.query = $event;
     } } }) : _vm._e(), _c("k-collection", { attrs: { "empty": {
       ..._vm.empty,
@@ -71,7 +89,10 @@
   var __component__$2 = /* @__PURE__ */ normalizeComponent(
     _sfc_main$2,
     _sfc_render$2,
-    _sfc_staticRenderFns$2
+    _sfc_staticRenderFns$2,
+    false,
+    null,
+    "0b9d33f2"
   );
   __component__$2.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/components/MediaLibraryModelsDialog.vue";
   const MediaLibraryModelsDialog = __component__$2.exports;
@@ -92,7 +113,10 @@
   var __component__$1 = /* @__PURE__ */ normalizeComponent(
     _sfc_main$1,
     _sfc_render$1,
-    _sfc_staticRenderFns$1
+    _sfc_staticRenderFns$1,
+    false,
+    null,
+    null
   );
   __component__$1.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/components/MediaLibraryFilesDialog.vue";
   const MediaLibraryFilesDialog = __component__$1.exports;
@@ -140,7 +164,10 @@
   var __component__ = /* @__PURE__ */ normalizeComponent(
     _sfc_main,
     _sfc_render,
-    _sfc_staticRenderFns
+    _sfc_staticRenderFns,
+    false,
+    null,
+    null
   );
   __component__.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/fields/MediaLibraryField.vue";
   const MediaLibraryField = __component__.exports;

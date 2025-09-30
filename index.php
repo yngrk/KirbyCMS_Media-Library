@@ -22,9 +22,20 @@ Kirby::plugin('yngrk/media-library', [
         'role' => 'admin'
     ],
 
+    'blueprints' => [
+        'files/yngrk-media-library-file' => __DIR__ . '/blueprints/files/yngrk-media-library-file.yml',
+        'pages/yngrk-media-library-page' => __DIR__ . '/blueprints/pages/yngrk-media-library-page.yml',
+        'pages/yngrk-media-bucket-page' => __DIR__ . '/blueprints/pages/yngrk-media-bucket-page.yml'
+    ],
+
+    'templates' => [
+        'yngrk-media-library-page' => __DIR__ . '/templates/yngrk-media-library-page.php',
+        'yngrk-media-bucket-page'  => __DIR__ . '/templates/yngrk-media-bucket-page.php',
+    ],
+
     'pageModels' => [
-        'media-library' => \Yngrk\MediaLibrary\Models\MediaLibraryPage::class,
-        'media-bucket' => \Yngrk\MediaLibrary\Models\MediaBucketPage::class,
+        'yngrk-media-library-page' => \Yngrk\MediaLibrary\Models\MediaLibraryPage::class,
+        'yngrk-media-bucket-page' => \Yngrk\MediaLibrary\Models\MediaBucketPage::class,
     ],
 
 //    'routes' => [
@@ -44,8 +55,8 @@ Kirby::plugin('yngrk/media-library', [
             kirby()->impersonate('kirby');
 
             $uid = option('yngrk.media-library.uid');
-            $tplLib = 'media-library';
-            $tplBuck =  'media-bucket';
+            $tplLib = 'yngrk-media-library-page';
+            $tplBuck =  'yngrk-media-bucket-page';
 
             if (!page($uid)) {
                 $library = site()->createChild([
@@ -73,6 +84,8 @@ Kirby::plugin('yngrk/media-library', [
                     }
                 }
             }
+
+
         },
     ],
 
@@ -92,7 +105,7 @@ Kirby::plugin('yngrk/media-library', [
                 'uploads' => function () {
                     return [
                         'parent' => 'page("' . $this->libUid . '/'. sanitizeBucket($this->bucket ?? 'images') . '")',
-                        'template' => 'media-library-image'
+                        'template' => 'yngrk-media-library-file'
                     ];
                 },
                 'label' => function ($label = null) {
@@ -110,10 +123,43 @@ Kirby::plugin('yngrk/media-library', [
                 'method'  => 'GET',
                 'action'  => function () {
                     $uid = option('yngrk.media-library.uid', 'media-library');
-                    if ($lib = page($uid)) {
-                        return ['categories' => $lib->content()->get('categories')?->split() ?? []];
+
+                    if (!$lib = page($uid)) {
+                        return [
+                            'categories' => ['uncategorized'],
+                            'count' => ['uncategorized' => 0],
+                        ];
                     }
-                    return ['categories' => []];
+
+                    $categories = $lib->content()->get('categories')?->split() ?? [];
+                    $categories[] = 'uncategorized';
+                    $categories = array_values(array_unique(array_filter($categories)));
+
+                    $files = $lib->index()->files();
+
+                    $count = [];
+                    foreach ($categories as $category) {
+                        $count[$category] = 0;
+                    }
+
+                    foreach($files as $file) {
+                        $c = (string) $file->category()->value();
+                        if ($c === '') {
+                            $count['uncategorized']++;
+                            continue;
+                        }
+
+                        if (!in_array($c, $categories, true)) {
+                            $categories[] = $c;
+                        }
+
+                        $count[$c] = ($count[$c] ?? 0) + 1;
+                    }
+
+                    return [
+                        'categories' => $categories,
+                        'count' => $count,
+                    ];
                 }
             ],
             [
@@ -121,14 +167,14 @@ Kirby::plugin('yngrk/media-library', [
                 'method' => 'GET',
                 'auth' => false,
                 'action' => function () {
-                    $pageNum = max(1, (int) get('page', 1));
-                    $limit = (int) get('limit', 20);
-                    $q = trim((string) get('search', ''));
-                    $bucket = get('bucket');
+                    $pageNum = max(1, (int)get('page', 1));
+                    $limit   = min(100, max(1, (int)get('limit', 20)));
+                    $q       = trim((string)get('search', ''));
+                    $bucket = sanitizeBucket(get('bucket'));
                     $cat = get('category');
 
                     $libUid = option('yngrk.media-library.uid', 'media-library');
-                    $parent = page($libUid . '/' . ($bucket ?? 'images'));
+                    $parent = page($libUid . '/' . $bucket);
 
                     if (!$parent) {
                         return [
@@ -143,10 +189,14 @@ Kirby::plugin('yngrk/media-library', [
                         ];
                     }
 
-                    $files = $parent->files();
+                    $files = $parent->files()->sortBy('filename', 'asc');
 
                     if ($cat) {
-                        $files = $files->filterBy('category', $cat);
+                        if ($cat === 'uncategorized') {
+                            $files = $files->filterBy('category', '');
+                        } else {
+                            $files = $files->filterBy('category', $cat);
+                        }
                     }
 
                     if ($q !== '') {
