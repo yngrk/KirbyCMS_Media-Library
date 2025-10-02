@@ -1,6 +1,10 @@
 title: Media Library
 
 tabs:
+  pages:
+    sections:
+      pages:
+        type: pages
   settings:
     fields:
       categories:

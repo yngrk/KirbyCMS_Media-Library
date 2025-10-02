@@ -8,7 +8,7 @@ fields:
     options:
       type: query
       query:
-        page(option('yngrk.media-library.uid', 'media-library')).categories.split
+        page(kirby.option('yngrk.media-library.uid', 'media-library'))?.categories?.split
 
   alt:
     label: Alt text

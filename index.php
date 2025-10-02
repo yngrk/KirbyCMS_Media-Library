@@ -38,15 +38,15 @@ Kirby::plugin('yngrk/media-library', [
         'yngrk-media-bucket-page' => \Yngrk\MediaLibrary\Models\MediaBucketPage::class,
     ],
 
-//    'routes' => [
-//        [
-//            'pattern' => option('yngrk.media-library.uid', 'media-library') . '(:all)?',
-//            'method'  => 'ALL',
-//            'action'  => function () {
-//                return site()->errorPage();
-//            }
-//        ]
-//    ],
+    'routes' => [
+        [
+            'pattern' => option('yngrk.media-library.uid', 'media-library') . '(:all)?',
+            'method'  => 'ALL',
+            'action'  => function () {
+                return site()->errorPage();
+            }
+        ]
+    ],
 
     'hooks' => [
         'system.loadPlugins:after' => function () {
@@ -90,7 +90,7 @@ Kirby::plugin('yngrk/media-library', [
     ],
 
     'fields' => [
-        'media-library' => [
+        'yngrk-media-library' => [
             'extends' => 'files',
             'props' => [
                 'bucket' => function () {
@@ -103,13 +103,26 @@ Kirby::plugin('yngrk/media-library', [
                     return 'page("' . $this->libUid . '/' . sanitizeBucket($this->bucket ?? 'images') . '").files';
                 },
                 'uploads' => function () {
+                    $bucket = $this->bucket ?? 'images';
+
+                    if ($this->accept) {
+                        $accept = $this->accept;
+                    } elseif ($bucket === 'videos') {
+                        $accept = 'video/*';
+                    } elseif ($bucket === 'documents') {
+                        $accept = 'application/*';
+                    } else {
+                        $accept = 'image/*';
+                    }
+
                     return [
-                        'parent' => 'page("' . $this->libUid . '/'. sanitizeBucket($this->bucket ?? 'images') . '")',
-                        'template' => 'yngrk-media-library-file'
+                        'parent'   => 'page("' . $this->libUid . '/' . sanitizeBucket($bucket) . '")',
+                        'template' => 'yngrk-media-library-file',
+                        'accept'   => $accept,
                     ];
                 },
                 'label' => function ($label = null) {
-                    return ($label ?? 'Media Library') . ' (' . sanitizeBucket($this->bucket ?? 'images') . ')';
+                    return ($label ?? 'Media Library');
                 }
             ],
         ]
@@ -144,16 +157,11 @@ Kirby::plugin('yngrk/media-library', [
 
                     foreach($files as $file) {
                         $c = (string) $file->category()->value();
-                        if ($c === '') {
+                        if ($c === '' || !in_array($c, $categories, true)) {
                             $count['uncategorized']++;
-                            continue;
+                        } else {
+                            $count[$c]++;
                         }
-
-                        if (!in_array($c, $categories, true)) {
-                            $categories[] = $c;
-                        }
-
-                        $count[$c] = ($count[$c] ?? 0) + 1;
                     }
 
                     return [

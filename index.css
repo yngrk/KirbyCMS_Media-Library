@@ -1,4 +1,21 @@
 
+.k-models-dialog[data-v-0b9d33f2] {
+  max-height: 100%;
+}
 .category-select[data-v-0b9d33f2] {
+  margin-bottom: 0.75rem;
+}
+.control[data-v-0b9d33f2] {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.control .k-dialog-search[data-v-0b9d33f2] {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.category-select[data-v-40b0430e] {
   margin-bottom: 0.75rem;
 }

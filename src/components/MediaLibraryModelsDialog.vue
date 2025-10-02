@@ -6,7 +6,8 @@ export default {
   data() {
     return {
       categories: [],
-      category: ''
+      category: '',
+      layout: 'list'
     }
   },
   computed: {
@@ -15,7 +16,7 @@ export default {
         value: c,
         text: c,
       }))
-    }
+    },
   },
   watch: {
     async category() {
@@ -23,6 +24,9 @@ export default {
     }
   },
   methods: {
+    setLayout(layout) {
+      this.layout = layout
+    },
     async fetch() {
       const params = {
         page: this.pagination.page,
@@ -57,9 +61,8 @@ export default {
       class="k-models-dialog"
       @cancel="$emit('cancel')"
       @submit="submit"
+      size="large"
   >
-    <slot name="header" />
-
     <k-select-field
         :options="categoryOptions"
         v-model="category"
@@ -67,7 +70,13 @@ export default {
         class="category-select"
     ></k-select-field>
 
-    <k-dialog-search v-if="hasSearch" :value="query" @search="query = $event" />
+    <div class="control">
+      <k-dialog-search v-if="hasSearch" :value="query" @search="query = $event" />
+      <k-button-group layout="collapsed">
+        <k-button icon="bars" size="lg" variant="filled" @click="setLayout('list')"></k-button>
+        <k-button icon="grid" size="lg" variant="filled" @click="setLayout('cards')"></k-button>
+      </k-button-group>
+    </div>
 
     <k-collection
         :empty="{
@@ -83,7 +92,8 @@ export default {
 				...pagination
 			}"
         :sortable="false"
-        layout="list"
+        :layout="layout"
+        size="small"
         @item="toggle"
         @paginate="paginate"
     >
@@ -94,14 +104,29 @@ export default {
             :title="isSelected(row) ? $t('remove') : $t('select')"
             @click.stop="toggle(row)"
         />
-        <slot name="options" v-bind="{ item: row }" />
       </template>
     </k-collection>
   </k-dialog>
 </template>
 
 <style scoped>
+.k-models-dialog {
+  max-height: 100%;
+}
+
 .category-select {
   margin-bottom: 0.75rem;
+}
+
+.control {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.control .k-dialog-search {
+  flex: 1;
+  margin-bottom: 0;
 }
 </style>
