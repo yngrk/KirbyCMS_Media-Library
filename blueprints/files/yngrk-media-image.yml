@@ -1,0 +1,28 @@
+title: Media Library File
+
+options:
+  changeSlug: false
+  changeStatus: false
+  changeTemplate: false
+
+
+fields:
+  category:
+    label: Category
+    type: pages
+    multiple: false
+    subpages: true
+    layout: list
+    link: false
+    text: "{{ page.title }}"
+    info: "{{ page.parent.title }}"
+    query: page(kirby.option("yngrk.media-library.uid")).find('categories')
+
+
+  alt:
+    label: Alt text
+    type: text
+
+  caption:
+    label: Caption
+    type: textarea

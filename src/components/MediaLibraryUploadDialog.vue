@@ -1,7 +1,7 @@
 
 <script>
 export default {
-  props: ['uploadOptions', 'targetId'],
+  props: ['uploadOptions', 'targetId', 'bucket'],
   emits: ['cancel', 'close', 'submit', 'success'],
   data() {
     return {
@@ -28,6 +28,13 @@ export default {
         text: c,
       })).filter((c) => c.value !== 'uncategorized')
     },
+    template() {
+      switch (this.$props.bucket) {
+        case 'videos': return 'yngrk-media-video';
+        case 'documents': return 'yngrk-media-document';
+        default: return 'yngrk-media-image';
+      }
+    }
   },
   methods: {
     async fetchCategories() {
@@ -46,7 +53,7 @@ export default {
         multiple: this.uploadOptions?.multiple ?? true,
         preview: this.uploadOptions?.preview ?? {},
         attributes: {
-          template: 'yngrk-media-library-file',
+          template: this.template,
         },
         on: {
           done: async (files) => {

@@ -1,0 +1,23 @@
+title: Media Bucket
+
+options:
+  changeSlug: false
+  changeStatus: false
+  changeTemplate: false
+
+sections:
+  fields:
+    fields:
+      stats:
+        type: stats
+        size: huge
+        reports:
+          - page.reportCount
+          - page.reportTotalFileSize
+          - page.reportAvgFileSize
+          - page.reportLargestFileSize
+  files:
+    type: files
+    uploads: false
+    max: -1
+

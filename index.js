@@ -179,7 +179,8 @@
               component: "yngrk-media-library-upload-dialog",
               props: {
                 targetId: `${this.fetchParams.libUid}+${this.fetchParams.bucket}`,
-                uploadOptions: this.uploadOptions
+                uploadOptions: this.uploadOptions,
+                bucket: this.fetchParams.bucket
               }
             })
           });
@@ -232,7 +233,7 @@
   __component__$1.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/fields/MediaLibraryField.vue";
   const MediaLibraryField = __component__$1.exports;
   const _sfc_main = {
-    props: ["uploadOptions", "targetId"],
+    props: ["uploadOptions", "targetId", "bucket"],
     emits: ["cancel", "close", "submit", "success"],
     data() {
       return {
@@ -259,6 +260,16 @@
           value: c,
           text: c
         })).filter((c) => c.value !== "uncategorized");
+      },
+      template() {
+        switch (this.$props.bucket) {
+          case "videos":
+            return "yngrk-media-video";
+          case "documents":
+            return "yngrk-media-document";
+          default:
+            return "yngrk-media-image";
+        }
       }
     },
     methods: {
@@ -279,7 +290,7 @@
           multiple: ((_c = this.uploadOptions) == null ? void 0 : _c.multiple) ?? true,
           preview: ((_d = this.uploadOptions) == null ? void 0 : _d.preview) ?? {},
           attributes: {
-            template: "yngrk-media-library-file"
+            template: this.template
           },
           on: {
             done: async (files) => {

@@ -50,6 +50,7 @@ export default {
             props: {
               targetId: `${this.fetchParams.libUid}+${this.fetchParams.bucket}`,
               uploadOptions: this.uploadOptions,
+              bucket: this.fetchParams.bucket
             }
           })
         });

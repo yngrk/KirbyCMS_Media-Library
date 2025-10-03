@@ -1,0 +1,15 @@
+title: Media Library
+
+options:
+  changeSlug: false
+  changeStatus: false
+  changeTemplate: false
+
+tabs:
+  pages:
+    sections:
+      pages:
+        type: pages
+        create: false
+        batch: false
+        info: DO NOT CHANGE

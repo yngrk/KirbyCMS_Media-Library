@@ -1,11 +1,11 @@
 <?php
 
 use Kirby\Cms\App as Kirby;
-use Kirby\Toolkit\Str;
 
 load([
     'Yngrk\MediaLibrary\Models\MediaLibraryPage' => 'models/MediaLibraryPage.php',
-    'Yngrk\MediaLibrary\Models\MediaBucketPage' => 'models/MediaBucketPage.php'
+    'Yngrk\MediaLibrary\Models\MediaBucketPage' => 'models/MediaBucketPage.php',
+    'Yngrk\MediaLibrary\Models\MediaCategoryPage' => 'models/MediaCategoryPage.php',
 ], __DIR__);
 
 
@@ -19,23 +19,28 @@ Kirby::plugin('yngrk/media-library', [
         'uid' => 'media-library',
         'buckets' => ['images', 'documents', 'videos'],
         'autocreate' => true,
-        'role' => 'admin'
+        'role' => 'none'
     ],
 
     'blueprints' => [
-        'files/yngrk-media-library-file' => __DIR__ . '/blueprints/files/yngrk-media-library-file.yml',
-        'pages/yngrk-media-library-page' => __DIR__ . '/blueprints/pages/yngrk-media-library-page.yml',
-        'pages/yngrk-media-bucket-page' => __DIR__ . '/blueprints/pages/yngrk-media-bucket-page.yml'
+        'files/yngrk-media-image' => __DIR__ . '/blueprints/files/yngrk-media-image.yml',
+        'files/yngrk-media-video' => __DIR__ . '/blueprints/files/yngrk-media-video.yml',
+        'files/yngrk-media-document' => __DIR__ . '/blueprints/files/yngrk-media-document.yml',
+        'pages/yngrk-media-library' => __DIR__ . '/blueprints/pages/yngrk-media-library.yml',
+        'pages/yngrk-media-bucket' => __DIR__ . '/blueprints/pages/yngrk-media-bucket.yml',
+        'pages/yngrk-media-category' => __DIR__ . '/blueprints/pages/yngrk-media-category.yml',
     ],
 
     'templates' => [
-        'yngrk-media-library-page' => __DIR__ . '/templates/yngrk-media-library-page.php',
-        'yngrk-media-bucket-page'  => __DIR__ . '/templates/yngrk-media-bucket-page.php',
+        'yngrk-media-library' => __DIR__ . '/templates/yngrk-media-library.php',
+        'yngrk-media-bucket'  => __DIR__ . '/templates/yngrk-media-bucket.php',
+        'yngrk-media-category' => __DIR__ . '/templates/yngrk-media-category.php',
     ],
 
     'pageModels' => [
-        'yngrk-media-library-page' => \Yngrk\MediaLibrary\Models\MediaLibraryPage::class,
-        'yngrk-media-bucket-page' => \Yngrk\MediaLibrary\Models\MediaBucketPage::class,
+        'yngrk-media-library' => \Yngrk\MediaLibrary\Models\MediaLibraryPage::class,
+        'yngrk-media-bucket' => \Yngrk\MediaLibrary\Models\MediaBucketPage::class,
+        'yngrk-media-category' => \Yngrk\MediaLibrary\Models\MediaCategoryPage::class,
     ],
 
     'routes' => [
@@ -54,38 +59,46 @@ Kirby::plugin('yngrk/media-library', [
 
             kirby()->impersonate('kirby');
 
-            $uid = option('yngrk.media-library.uid');
-            $tplLib = 'yngrk-media-library-page';
-            $tplBuck =  'yngrk-media-bucket-page';
+            $uid = option('yngrk.media-library.uid', 'media-library');
+            $tplLib = 'yngrk-media-library';
+            $tplBuck =  'yngrk-media-bucket';
 
-            if (!page($uid)) {
-                $library = site()->createChild([
-                   'slug' => $uid,
-                   'template' => $tplLib,
-                   'content' => [
-                       'title' => 'Media Library',
-                       'label'  => 'Media Library',
-                       'categories' => '',
-                   ],
-                    'isDraft' => false,
-                ]);
+            $library = page($uid) ?? site()->createChild([
+                'slug' => $uid,
+                'template' => $tplLib,
+                'content' => [
+                    'title' => 'Media Library',
+                    'label'  => 'Media Library',
+                    'categories' => '',
+                ],
+                'isDraft' => false,
+            ]);
 
-                foreach ((array) option('yngrk.media-library.buckets', []) as $bucket) {
-                    if (!$library->find($bucket)) {
-                        $library->createChild([
-                            'slug' => \Kirby\Toolkit\Str::slug($bucket),
-                            'template' => $tplBuck,
-                            'content' => [
-                                'title' => ucfirst($bucket),
-                                'label' => ucfirst($bucket),
-                            ],
-                            'isDraft' => false,
-                        ]);
-                    }
+            foreach ((array) option('yngrk.media-library.buckets', []) as $bucket) {
+                if (!$library->find($bucket)) {
+                    $library->createChild([
+                        'slug' => \Kirby\Toolkit\Str::slug($bucket),
+                        'template' => $tplBuck,
+                        'content' => [
+                            'title' => ucfirst($bucket),
+                            'label' => ucfirst($bucket),
+                        ],
+                        'isDraft' => false,
+                    ]);
                 }
             }
 
-
+            if (!$library->find('categories')) {
+                $library->createChild([
+                    'slug' => 'categories',
+                    'template' => 'yngrk-media-category',
+                    'content' => [
+                        'title' => 'Categories',
+                        'label'  => 'Categories',
+                    ],
+                    'isDraft' => false,
+                ]);
+            }
         },
     ],
 
@@ -105,19 +118,21 @@ Kirby::plugin('yngrk/media-library', [
                 'uploads' => function () {
                     $bucket = $this->bucket ?? 'images';
 
-                    if ($this->accept) {
-                        $accept = $this->accept;
-                    } elseif ($bucket === 'videos') {
-                        $accept = 'video/*';
-                    } elseif ($bucket === 'documents') {
-                        $accept = 'application/*';
-                    } else {
-                        $accept = 'image/*';
-                    }
+                    $accept = $this->accept ?? match ($bucket) {
+                        'videos'    => 'video/*',
+                        'documents' => 'application/*',
+                        default     => 'image/*',
+                    };
+
+                    $template = match ($bucket) {
+                        'videos' => 'yngrk-media-video',
+                        'documents' => 'yngrk-media-document',
+                        default => 'yngrk-media-image',
+                    };
 
                     return [
                         'parent'   => 'page("' . $this->libUid . '/' . sanitizeBucket($bucket) . '")',
-                        'template' => 'yngrk-media-library-file',
+                        'template' => $template,
                         'accept'   => $accept,
                     ];
                 },

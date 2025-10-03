@@ -1,0 +1,19 @@
+title: Media Category
+
+options:
+  read: true          # allow opening the page
+  update: false       # fields become read-only, no Save
+  delete: false
+  changeSlug: false
+  changeStatus: false
+  changeTemplate: false
+  duplicate: false    # optional, often makes sense to disable too
+
+tabs:
+  pages:
+    sections:
+      categories:
+        type: pages
+        label: Categories
+        info: DO NOT CHANGE
+        create: false

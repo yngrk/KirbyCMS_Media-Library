@@ -1,7 +1,0 @@
-title: Media Bucket
-
-sections:
-  files:
-    sortable: true
-    # optional: force all files in a bucket to use a specific file blueprint
-    template: yngrk-media-library-file
