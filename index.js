@@ -24,14 +24,6 @@
         layout: "list"
       };
     },
-    computed: {
-      categoryOptions() {
-        return this.categories.map((c) => ({
-          value: c,
-          text: c
-        }));
-      }
-    },
     watch: {
       async category() {
         await this.fetch();
@@ -49,8 +41,7 @@
           category: this.category
         };
         try {
-          const categoriesResponse = await this.$api.get("yngrk-media-library/categories");
-          this.categories = categoriesResponse.categories;
+          this.categories = await this.$api.get("yngrk-media-library/categories");
           this.$panel.dialog.isLoading = true;
           const response = await this.$api.get(this.endpoint, params);
           this.models = response.data;
@@ -69,7 +60,7 @@
     var _vm = this, _c = _vm._self._c;
     return _c("k-dialog", _vm._b({ staticClass: "k-models-dialog", attrs: { "size": "large" }, on: { "cancel": function($event) {
       return _vm.$emit("cancel");
-    }, "submit": _vm.submit } }, "k-dialog", _vm.$props, false), [_c("k-select-field", { staticClass: "category-select", attrs: { "options": _vm.categoryOptions, "placeholder": "Filter by category" }, model: { value: _vm.category, callback: function($$v) {
+    }, "submit": _vm.submit } }, "k-dialog", _vm.$props, false), [_c("k-select-field", { staticClass: "category-select", attrs: { "options": _vm.categories, "placeholder": "Filter by category" }, model: { value: _vm.category, callback: function($$v) {
       _vm.category = $$v;
     }, expression: "category" } }), _c("div", { staticClass: "control" }, [_vm.hasSearch ? _c("k-dialog-search", { attrs: { "value": _vm.query }, on: { "search": function($event) {
       _vm.query = $event;

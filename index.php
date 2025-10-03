@@ -148,8 +148,8 @@ Kirby::plugin('yngrk/media-library', [
         'routes' => [
             [
                 'pattern' => 'yngrk-media-library/categories',
-                'auth' => false,
                 'method'  => 'GET',
+                'auth' => false,
                 'action'  => function () {
                     $uid = option('yngrk.media-library.uid', 'media-library');
 
@@ -160,30 +160,34 @@ Kirby::plugin('yngrk/media-library', [
                         ];
                     }
 
-                    $categories = $lib->content()->get('categories')?->split() ?? [];
-                    $categories[] = 'uncategorized';
-                    $categories = array_values(array_unique(array_filter($categories)));
+                    $root = $lib->find('categories') ?? page($uid . '/categories');
 
-                    $files = $lib->index()->files();
-
-                    $count = [];
-                    foreach ($categories as $category) {
-                        $count[$category] = 0;
+                    if (!$root) {
+                        return [];
                     }
 
-                    foreach($files as $file) {
-                        $c = (string) $file->category()->value();
-                        if ($c === '' || !in_array($c, $categories, true)) {
-                            $count['uncategorized']++;
-                        } else {
-                            $count[$c]++;
+                    $options = [];
+
+                    foreach ($root->index() as $category) {
+                        $chain = $category->parents()->flip()->add($category);
+
+                        $start = $chain->indexOf($root);
+                        if ($start !== null) {
+                            $chain = $chain->slice($start + 1);
                         }
+
+                        $text = implode('/', $chain->pluck('title', null, true));
+
+                        $value = $chain->last()->uuid()->toString();
+
+                        $options[] = [
+                            'text' => $text,
+                            'value' => $value,
+                            'id' => $category->id(),
+                        ];
                     }
 
-                    return [
-                        'categories' => $categories,
-                        'count' => $count,
-                    ];
+                    return $options;
                 }
             ],
             [
@@ -216,10 +220,10 @@ Kirby::plugin('yngrk/media-library', [
                     $files = $parent->files()->sortBy('filename', 'asc');
 
                     if ($cat) {
-                        if ($cat === 'uncategorized') {
+                        if (!$cat) {
                             $files = $files->filterBy('category', '');
                         } else {
-                            $files = $files->filterBy('category', $cat);
+                            $files = $files->filter(fn ($file) => in_array($cat, $file->category()->yaml()));
                         }
                     }
 

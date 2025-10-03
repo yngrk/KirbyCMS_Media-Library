@@ -27,6 +27,7 @@ sections:
           - page.reportLargestFileSize
   files:
     type: files
-    uploads: false
-    max: -1
+    uploads:
+      template: 'yngrk-media-image'
+    max: 10
 

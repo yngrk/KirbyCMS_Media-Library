@@ -6,6 +6,7 @@ options:
   changeTemplate: false
 
 
+
 fields:
   category:
     label: Category

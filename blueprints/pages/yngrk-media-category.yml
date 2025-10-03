@@ -1,7 +1,7 @@
 title: Media Category
 
 options:
-  read: true
+  read: false
   update: false
   delete: false
   changeSlug: false
@@ -22,3 +22,4 @@ tabs:
         label: Categories
         info: DO NOT CHANGE
         create: false
+

@@ -10,14 +10,6 @@ export default {
       layout: 'list'
     }
   },
-  computed: {
-    categoryOptions() {
-      return this.categories.map((c) => ({
-        value: c,
-        text: c,
-      }))
-    },
-  },
   watch: {
     async category() {
       await this.fetch()
@@ -36,8 +28,7 @@ export default {
       };
 
       try {
-        const categoriesResponse = await this.$api.get('yngrk-media-library/categories')
-        this.categories = categoriesResponse.categories
+        this.categories = await this.$api.get('yngrk-media-library/categories')
 
         this.$panel.dialog.isLoading = true;
         const response = await this.$api.get(this.endpoint, params);
@@ -64,7 +55,7 @@ export default {
       size="large"
   >
     <k-select-field
-        :options="categoryOptions"
+        :options="categories"
         v-model="category"
         placeholder="Filter by category"
         class="category-select"

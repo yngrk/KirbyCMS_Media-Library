@@ -47,7 +47,7 @@ class MediaBucketPage extends Page {
 
         $niceSize = $avgSize > (1024*1024)
             ? round($avgSize / (1024*1024), 2) . ' MB'
-            : round($avgSize / 1000, 2) . ' KB';
+            : round($avgSize / 1024, 2) . ' KB';
 
         return [
             'label' => 'average filesize',
