@@ -54,8 +54,9 @@ Kirby::plugin('yngrk/media-library', [
     ],
 
     'hooks' => [
-        'system.loadPlugins:after' => function () {
+        'user.login:after' => function () {
             if (!option('yngrk.media-library.autocreate')) return;
+            if (!kirby()->user()) return;
 
             kirby()->impersonate('kirby');
 
