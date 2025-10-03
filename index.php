@@ -19,7 +19,7 @@ Kirby::plugin('yngrk/media-library', [
         'uid' => 'media-library',
         'buckets' => ['images', 'documents', 'videos'],
         'autocreate' => true,
-        'role' => 'none'
+        'role' => 'admin'
     ],
 
     'blueprints' => [

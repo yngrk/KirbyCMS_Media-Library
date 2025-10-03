@@ -1,9 +1,18 @@
 title: Media Bucket
 
 options:
+  read: true
+  update: false
+  delete: false
   changeSlug: false
   changeStatus: false
   changeTemplate: false
+  changeTitle: false
+  duplicate: false
+  create: false
+  move: false
+  sort: false
+
 
 sections:
   fields:
