@@ -246,12 +246,6 @@
       uploadUrl() {
         return `${this.apiBase}/pages/${this.$props.targetId}/files`;
       },
-      categoryOptions() {
-        return this.categories.map((c) => ({
-          value: c,
-          text: c
-        })).filter((c) => c.value !== "uncategorized");
-      },
       template() {
         switch (this.$props.bucket) {
           case "videos":
@@ -264,10 +258,12 @@
       }
     },
     methods: {
+      uploadRename(file, filename) {
+        console.log(file, filename);
+      },
       async fetchCategories() {
         try {
-          const categoriesResponse = await this.$api.get("yngrk-media-library/categories");
-          this.categories = categoriesResponse.categories;
+          this.categories = await this.$api.get("yngrk-media-library/categories");
         } catch (e) {
           console.error(e);
         }
@@ -289,7 +285,7 @@
               await Promise.allSettled(
                 files.map((f) => {
                   this.$panel.api.patch(f.link, {
-                    category: this.categorySelection
+                    category: [this.categorySelection]
                   });
                 })
               );
@@ -334,8 +330,38 @@
         this.$emit("cancel");
         this.close();
       },
+      removeFromUploadQueue(file) {
+        this.$panel.upload.remove(file.id);
+        this.$refs.fileInput.value = "";
+        console.log(this.$panel.upload.files);
+      },
+      sluggify(string) {
+        return this.$helper.string.slug(string, "", "a-z0-9@._-");
+      },
+      async getFiles() {
+        const response = await this.$api.get(`pages/${this.$props.targetId}/files`);
+        return response.data;
+      },
       async onSubmit() {
         var _a, _b;
+        const uploadFiles = this.$panel.upload.files;
+        uploadFiles.forEach((f) => f.name = this.sluggify(f.name));
+        const files = await this.getFiles();
+        uploadFiles.forEach((f) => f.error = "");
+        let hasErrors = false;
+        uploadFiles.forEach((f) => {
+          if (files.some((fa) => fa.name === f.name)) {
+            f.error = "This file already exists.";
+            hasErrors = true;
+          }
+          if (uploadFiles.filter((fa) => fa.name === f.name).length > 1) {
+            f.error = "Duplicate names found.";
+            hasErrors = true;
+          }
+        });
+        if (hasErrors) {
+          throw Error("validation failed.");
+        }
         this.isUploading = true;
         try {
           await this.$panel.upload.submit();
@@ -364,11 +390,13 @@
   var _sfc_render = function render() {
     var _a, _b;
     var _vm = this, _c = _vm._self._c;
-    return _c("k-dialog", { ref: "dialog", staticClass: "yngrk-media-library-upload-dialog", attrs: { "visible": true, "disabled": _vm.$panel.upload.files.length === 0 || _vm.isUploading }, on: { "cancel": _vm.onCancel, "submit": _vm.onSubmit } }, [_c("k-select-field", { staticClass: "category-select", attrs: { "placeholder": "No Category", "options": _vm.categoryOptions }, model: { value: _vm.categorySelection, callback: function($$v) {
+    return _c("k-dialog", { ref: "dialog", staticClass: "yngrk-media-library-upload-dialog", attrs: { "visible": true, "disabled": _vm.$panel.upload.files.length === 0 || _vm.isUploading }, on: { "cancel": _vm.onCancel, "submit": _vm.onSubmit } }, [_c("k-select-field", { staticClass: "category-select", attrs: { "placeholder": "No Category", "options": _vm.categories }, model: { value: _vm.categorySelection, callback: function($$v) {
       _vm.categorySelection = $$v;
     }, expression: "categorySelection" } }), _c("k-dropzone", { on: { "drop": function($event) {
       return _vm.$panel.upload.select($event);
-    } } }, [_vm.$panel.upload.files.length === 0 ? _c("k-empty", { attrs: { "icon": "upload", "layout": "cards" }, on: { "click": _vm.openPicker } }, [_vm._v(" " + _vm._s(_vm.$t("files.empty")) + " ")]) : _c("k-upload-items", { attrs: { "items": _vm.$panel.upload.files }, on: { "remove": (file) => _vm.$panel.upload.remove(file.id), "rename": (file, name) => _vm.$panel.upload.rename(file.id, name) } })], 1), _c("input", { ref: "fileInput", staticStyle: { "display": "none" }, attrs: { "type": "file", "multiple": ((_a = _vm.uploadOptions) == null ? void 0 : _a.multiple) ?? true, "accept": (_b = _vm.uploadOptions) == null ? void 0 : _b.accept }, on: { "change": _vm.onPicked } })], 1);
+    } } }, [_vm.$panel.upload.files.length === 0 ? _c("k-empty", { attrs: { "icon": "upload", "layout": "cards" }, on: { "click": _vm.openPicker } }, [_vm._v(" " + _vm._s(_vm.$t("files.empty")) + " ")]) : _c("k-upload-items", { attrs: { "items": _vm.$panel.upload.files }, on: { "remove": _vm.removeFromUploadQueue, "rename": (file, name) => {
+      file.name = name;
+    } } })], 1), _c("input", { ref: "fileInput", staticStyle: { "display": "none" }, attrs: { "type": "file", "multiple": ((_a = _vm.uploadOptions) == null ? void 0 : _a.multiple) ?? true, "accept": (_b = _vm.uploadOptions) == null ? void 0 : _b.accept }, on: { "change": _vm.onPicked } })], 1);
   };
   var _sfc_staticRenderFns = [];
   _sfc_render._withStripped = true;

@@ -3,7 +3,7 @@ title: Media Category
 options:
   read: false
   update: false
-  delete: false
+  delete: true
   changeSlug: false
   changeStatus: false
   changeTemplate: false

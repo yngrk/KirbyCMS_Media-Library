@@ -22,12 +22,6 @@ export default {
     uploadUrl() {
       return `${this.apiBase}/pages/${this.$props.targetId}/files`
     },
-    categoryOptions() {
-      return this.categories.map((c) => ({
-        value: c,
-        text: c,
-      })).filter((c) => c.value !== 'uncategorized')
-    },
     template() {
       switch (this.$props.bucket) {
         case 'videos': return 'yngrk-media-video';
@@ -37,10 +31,12 @@ export default {
     }
   },
   methods: {
+    uploadRename(file, filename) {
+      console.log(file, filename)
+    },
     async fetchCategories() {
       try {
-        const categoriesResponse = await this.$api.get('yngrk-media-library/categories')
-        this.categories = categoriesResponse.categories
+        this.categories = await this.$api.get('yngrk-media-library/categories')
       } catch (e) {
         console.error(e)
       }
@@ -60,7 +56,7 @@ export default {
             await Promise.allSettled(
                 files.map((f) => {
                   this.$panel.api.patch(f.link, {
-                    category: this.categorySelection
+                    category: [this.categorySelection]
                   })
                 })
             )
@@ -111,7 +107,43 @@ export default {
       this.$emit('cancel');
       this.close();
     },
+    removeFromUploadQueue(file) {
+      this.$panel.upload.remove(file.id)
+      this.$refs.fileInput.value = ''
+      console.log(this.$panel.upload.files)
+    },
+    sluggify(string) {
+      return this.$helper.string.slug(string ,'', 'a-z0-9@._-')
+    },
+    async getFiles() {
+      const response = await this.$api.get(`pages/${this.$props.targetId}/files`)
+      return response.data
+    },
     async onSubmit() {
+      const uploadFiles = this.$panel.upload.files
+      uploadFiles.forEach((f) => f.name = this.sluggify(f.name))
+
+      const files = await this.getFiles()
+
+      uploadFiles.forEach((f) => f.error = '')
+
+      let hasErrors = false
+      uploadFiles.forEach((f) => {
+        if (files.some((fa) => fa.name === f.name)) {
+          f.error = 'This file already exists.'
+          hasErrors = true
+        }
+
+        if (uploadFiles.filter((fa) => fa.name === f.name).length > 1) {
+          f.error = 'Duplicate names found.'
+          hasErrors = true
+        }
+      })
+
+      if (hasErrors) {
+        throw Error('validation failed.')
+      }
+
       this.isUploading = true
       try {
         await this.$panel.upload.submit();
@@ -150,7 +182,7 @@ export default {
     <k-select-field
         class="category-select"
         placeholder="No Category"
-        :options="categoryOptions"
+        :options="categories"
         v-model="categorySelection"
     ></k-select-field>
 
@@ -167,8 +199,8 @@ export default {
       <k-upload-items
           v-else
           :items="$panel.upload.files"
-          @remove="(file) => $panel.upload.remove(file.id)"
-          @rename="(file, name) => $panel.upload.rename(file.id, name)"
+          @remove="removeFromUploadQueue"
+          @rename="(file, name) => {file.name = name}"
       />
     </k-dropzone>
 
