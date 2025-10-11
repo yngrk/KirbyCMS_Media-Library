@@ -16,6 +16,7 @@ function sanitizeBucket($bucket) {
 
 Kirby::plugin('yngrk/media-library', [
     'options' => require __DIR__ . '/config/options.php',
+    'areas' => require __DIR__ . '/config/areas.php',
     'blueprints' => require __DIR__ . '/config/blueprints.php',
     'templates' => require __DIR__ . '/config/templates.php',
     'pageModels' => require __DIR__ . '/config/pageModels.php',

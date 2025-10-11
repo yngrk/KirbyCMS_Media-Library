@@ -15,7 +15,7 @@
       options
     };
   }
-  const _sfc_main$3 = {
+  const _sfc_main$4 = {
     extends: "k-models-dialog",
     data() {
       return {
@@ -56,7 +56,7 @@
       }
     }
   };
-  var _sfc_render$3 = function render() {
+  var _sfc_render$4 = function render() {
     var _vm = this, _c = _vm._self._c;
     return _c("k-dialog", _vm._b({ staticClass: "k-models-dialog", attrs: { "size": "large" }, on: { "cancel": function($event) {
       return _vm.$emit("cancel");
@@ -83,6 +83,30 @@
       } } })];
     } }]) })], 1);
   };
+  var _sfc_staticRenderFns$4 = [];
+  _sfc_render$4._withStripped = true;
+  var __component__$4 = /* @__PURE__ */ normalizeComponent(
+    _sfc_main$4,
+    _sfc_render$4,
+    _sfc_staticRenderFns$4,
+    false,
+    null,
+    "0b9d33f2"
+  );
+  __component__$4.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/components/MediaLibraryModelsDialog.vue";
+  const MediaLibraryModelsDialog = __component__$4.exports;
+  const _sfc_main$3 = {
+    components: { MediaLibraryModelsDialog },
+    extends: "k-files-dialog"
+  };
+  var _sfc_render$3 = function render() {
+    var _vm = this, _c = _vm._self._c;
+    return _c("media-library-models-dialog", _vm._b({ on: { "cancel": function($event) {
+      return _vm.$emit("cancel");
+    }, "submit": function($event) {
+      return _vm.$emit("submit", $event);
+    } } }, "media-library-models-dialog", _vm.$props, false));
+  };
   var _sfc_staticRenderFns$3 = [];
   _sfc_render$3._withStripped = true;
   var __component__$3 = /* @__PURE__ */ normalizeComponent(
@@ -91,35 +115,11 @@
     _sfc_staticRenderFns$3,
     false,
     null,
-    "0b9d33f2"
-  );
-  __component__$3.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/components/MediaLibraryModelsDialog.vue";
-  const MediaLibraryModelsDialog = __component__$3.exports;
-  const _sfc_main$2 = {
-    components: { MediaLibraryModelsDialog },
-    extends: "k-files-dialog"
-  };
-  var _sfc_render$2 = function render() {
-    var _vm = this, _c = _vm._self._c;
-    return _c("media-library-models-dialog", _vm._b({ on: { "cancel": function($event) {
-      return _vm.$emit("cancel");
-    }, "submit": function($event) {
-      return _vm.$emit("submit", $event);
-    } } }, "media-library-models-dialog", _vm.$props, false));
-  };
-  var _sfc_staticRenderFns$2 = [];
-  _sfc_render$2._withStripped = true;
-  var __component__$2 = /* @__PURE__ */ normalizeComponent(
-    _sfc_main$2,
-    _sfc_render$2,
-    _sfc_staticRenderFns$2,
-    false,
-    null,
     null
   );
-  __component__$2.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/components/MediaLibraryFilesDialog.vue";
-  const MediaLibraryFilesDialog = __component__$2.exports;
-  const _sfc_main$1 = {
+  __component__$3.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/components/MediaLibraryFilesDialog.vue";
+  const MediaLibraryFilesDialog = __component__$3.exports;
+  const _sfc_main$2 = {
     extends: "k-files-field",
     props: ["query", "uploads", "bucket", "libUid"],
     created() {
@@ -211,19 +211,19 @@
       }
     }
   };
-  const _sfc_render$1 = null;
-  const _sfc_staticRenderFns$1 = null;
-  var __component__$1 = /* @__PURE__ */ normalizeComponent(
-    _sfc_main$1,
-    _sfc_render$1,
-    _sfc_staticRenderFns$1,
+  const _sfc_render$2 = null;
+  const _sfc_staticRenderFns$2 = null;
+  var __component__$2 = /* @__PURE__ */ normalizeComponent(
+    _sfc_main$2,
+    _sfc_render$2,
+    _sfc_staticRenderFns$2,
     false,
     null,
     null
   );
-  __component__$1.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/fields/MediaLibraryField.vue";
-  const MediaLibraryField = __component__$1.exports;
-  const _sfc_main = {
+  __component__$2.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/fields/MediaLibraryField.vue";
+  const MediaLibraryField = __component__$2.exports;
+  const _sfc_main$1 = {
     props: ["uploadOptions", "targetId", "bucket"],
     emits: ["cancel", "close", "submit", "success"],
     data() {
@@ -387,7 +387,7 @@
       }
     }
   };
-  var _sfc_render = function render() {
+  var _sfc_render$1 = function render() {
     var _a, _b;
     var _vm = this, _c = _vm._self._c;
     return _c("k-dialog", { ref: "dialog", staticClass: "yngrk-media-library-upload-dialog", attrs: { "visible": true, "disabled": _vm.$panel.upload.files.length === 0 || _vm.isUploading }, on: { "cancel": _vm.onCancel, "submit": _vm.onSubmit } }, [_c("k-select-field", { staticClass: "category-select", attrs: { "placeholder": "No Category", "options": _vm.categories }, model: { value: _vm.categorySelection, callback: function($$v) {
@@ -398,6 +398,27 @@
       file.name = name;
     } } })], 1), _c("input", { ref: "fileInput", staticStyle: { "display": "none" }, attrs: { "type": "file", "multiple": ((_a = _vm.uploadOptions) == null ? void 0 : _a.multiple) ?? true, "accept": (_b = _vm.uploadOptions) == null ? void 0 : _b.accept }, on: { "change": _vm.onPicked } })], 1);
   };
+  var _sfc_staticRenderFns$1 = [];
+  _sfc_render$1._withStripped = true;
+  var __component__$1 = /* @__PURE__ */ normalizeComponent(
+    _sfc_main$1,
+    _sfc_render$1,
+    _sfc_staticRenderFns$1,
+    false,
+    null,
+    "40b0430e"
+  );
+  __component__$1.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/components/MediaLibraryUploadDialog.vue";
+  const MediaLibraryUploadDialog = __component__$1.exports;
+  const _sfc_main = {
+    props: {
+      greeting: String
+    }
+  };
+  var _sfc_render = function render() {
+    var _vm = this, _c = _vm._self._c;
+    return _c("div", [_vm._v(" hello world ")]);
+  };
   var _sfc_staticRenderFns = [];
   _sfc_render._withStripped = true;
   var __component__ = /* @__PURE__ */ normalizeComponent(
@@ -406,10 +427,10 @@
     _sfc_staticRenderFns,
     false,
     null,
-    "40b0430e"
+    null
   );
-  __component__.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/components/MediaLibraryUploadDialog.vue";
-  const MediaLibraryUploadDialog = __component__.exports;
+  __component__.options.__file = "/home/yngrk/code/kirby_dev/cms/site/plugins/media-library/src/components/panel/MediaLibraryPanelView.vue";
+  const MediaLibraryPanelView = __component__.exports;
   panel.plugin("yngrk/media-library", {
     fields: {
       "yngrk-media-library": MediaLibraryField
@@ -417,7 +438,8 @@
     components: {
       "media-library-files-dialog": MediaLibraryFilesDialog,
       "media-library-models-dialog": MediaLibraryModelsDialog,
-      "yngrk-media-library-upload-dialog": MediaLibraryUploadDialog
+      "yngrk-media-library-upload-dialog": MediaLibraryUploadDialog,
+      "yngrk-media-library-panel-view": MediaLibraryPanelView
     }
   });
 })();
